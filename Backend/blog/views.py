@@ -1,57 +1,52 @@
 from django.shortcuts import render, HttpResponse
 from .models import Post
 from .serializers import PostSerializer
-from django.http import JsonResponse
+from django.http import HttpResponse
 from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework.response import Response
 
 # Create your views here.
 
 
-
-
-@csrf_exempt
+@api_view(['GET', 'POST'])
 def PostList(request):
 
     if request.method == 'GET':
         post = Post.objects.all()
         serializer = PostSerializer(post, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
 
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = PostSerializer(data=data)
+        serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.error, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-@csrf_exempt
-def post_details(request,pk):
+@api_view(['GET', 'PUT', "DELETE"])
+def post_details(request, pk):
     try:
-        post=Post.objects.get(pk=pk)
+        post = Post.objects.get(pk=pk)
 
     except Post.DoesNotExist:
-        return HttpResponse(status=400)    
-
+        return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'GET':
-        ss=PostSerializer(post)
-        return JsonResponse(ss.data)
+        ss = PostSerializer(post)
+        return Response(ss.data)
 
-    elif request.method =='PUT':
-        data=JSONParser().parse(request)
-        ss=PostSerializer(post,data=data)
+    elif request.method == 'PUT':
+
+        ss = PostSerializer(post, data=request.data)
         if ss.is_valid():
             ss.save()
-            return JsonResponse(ss.data,status=201)
+            return Response(ss.data, status=status.HTTP_201_CREATED)
 
-        return JsonResponse(ss.errors,status=400)
-
+        return Response(ss.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
         post.delete()
-        return HttpResponse(status=204)
+        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
