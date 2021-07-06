@@ -7,53 +7,38 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
+from rest_framework import generics
+from rest_framework import mixins
 
 # Create your views here.
 
 
-class BlogList(APIView):
+class BlogList(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
+
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
 
     def get(self, request):
-        posts = Post.objects.all()
-        ss = PostSerializer(posts, many=True)
-        return Response(ss.data)
+        return self.list(request)
 
     def post(self, request):
-        ss = PostSerializer(data=request.data)
-        if ss.is_valid():
-            ss.save()
-            return Response(ss.data, status=status.HTTP_201_CREATED)
-
-        return Response(ss.errors, status=status.HTTP_400_BAD_REQUEST)
+        return self.create(request)
 
 
-class BlogListDetails(APIView):
+class BlogListDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin):
 
-    def get_object(self, id):
-        try:
-            return Post.objects.get(id=id)
-
-        except Post.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    lookup_field = 'id'
 
     def get(self, request, id):
-        post = self.get_object(id)
-        ss = PostSerializer(post)
-        return Response(ss.data)
+        return self.retrieve(request, id=id)
 
     def put(self, request, id):
-        post = self.get_object(id)
-
-        ss = PostSerializer(post, data=request.data)
-        if ss.is_valid():
-            ss.save()
-            return Response(ss.data)
-        return Response(ss.data, status=status.HTTP_400_BAD_REQUEST)
+        return self.update(request, id=id)
 
     def delete(self, request, id):
-        post = self.get_object(id)
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return self.destroy(request, id=id)
 
 
 # @api_view(['GET', 'POST'])
