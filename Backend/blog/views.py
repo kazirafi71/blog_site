@@ -9,36 +9,41 @@ from rest_framework.response import Response
 from rest_framework.decorators import APIView
 from rest_framework import generics
 from rest_framework import mixins
-
+from rest_framework import viewsets
 # Create your views here.
 
 
-class BlogList(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
-
-    queryset = Post.objects.all()
+class BlogViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-
-    def get(self, request):
-        return self.list(request)
-
-    def post(self, request):
-        return self.create(request)
-
-
-class BlogListDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin):
-
     queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    lookup_field = 'id'
 
-    def get(self, request, id):
-        return self.retrieve(request, id=id)
 
-    def put(self, request, id):
-        return self.update(request, id=id)
+# class BlogList(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
 
-    def delete(self, request, id):
-        return self.destroy(request, id=id)
+#     queryset = Post.objects.all()
+#     serializer_class = PostSerializer
+
+#     def get(self, request):
+#         return self.list(request)
+
+#     def post(self, request):
+#         return self.create(request)
+
+
+# class BlogListDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin):
+
+#     queryset = Post.objects.all()
+#     serializer_class = PostSerializer
+#     lookup_field = 'id'
+
+#     def get(self, request, id):
+#         return self.retrieve(request, id=id)
+
+#     def put(self, request, id):
+#         return self.update(request, id=id)
+
+#     def delete(self, request, id):
+#         return self.destroy(request, id=id)
 
 
 # @api_view(['GET', 'POST'])
