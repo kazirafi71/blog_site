@@ -1,8 +1,8 @@
 
 
 from django.urls import path
-from .views import Index
+from .views import PostList
 
 urlpatterns = [
-    path('', Index)
+    path('all-posts', PostList)
 ]
